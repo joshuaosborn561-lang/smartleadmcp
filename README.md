@@ -1,27 +1,65 @@
 # Smartlead MCP Server
 
-Persistent [Model Context Protocol](https://modelcontextprotocol.io) server that wraps the [Smartlead API](https://server.smartlead.ai/api/v1) for use as a Claude custom connector.
+Persistent [Model Context Protocol](https://modelcontextprotocol.io) server that wraps the full [Smartlead API](https://server.smartlead.ai/api/v1) for use as a Claude custom connector.
 
-## Tools
+Base URL: `https://server.smartlead.ai/api/v1`  
+Auth: `api_key` query param (injected from `SMARTLEAD_API_KEY`)
 
-| Tool | Smartlead endpoint |
-|------|--------------------|
-| `create_campaign` | `POST /campaigns/create` |
-| `upload_sequence` | `POST /campaigns/{id}/sequences` |
-| `link_mailboxes` | `POST /campaigns/{id}/email-accounts` |
-| `import_leads` | `POST /campaigns/{id}/leads` (auto-chunks at 400) |
-| `set_schedule` | `POST /campaigns/{id}/schedule` |
-| `update_campaign_status` | `PATCH /campaigns/{id}/status` |
-| `get_campaign_analytics` | `GET /campaigns/{id}/analytics` |
+## Claude connector URL
 
-`import_leads` automatically batches into chunks of 400 (Smartlead's hard limit), waits briefly between chunks, retries `429` responses with exponential backoff, and returns a summary of total leads plus any failed chunks.
+```
+https://workspace-production-9629.up.railway.app/mcp
+```
+
+Add that under Claude **Settings → Connectors**.
+
+## Coverage
+
+This server ships:
+
+1. **Named convenience tools** for the common campaign lifecycle and day-to-day ops
+2. **`list_smartlead_endpoints`** — browse a curated catalog of ~195 documented endpoints across all Smartlead API areas
+3. **`smartlead_request`** — call *any* Smartlead v1 path/method (full API escape hatch), with automatic `api_key` injection and 429 exponential backoff
+
+### Catalog categories
+
+| Category | Examples |
+|----------|----------|
+| `campaigns` | create/list/get/delete, status, schedule, settings, sequences, duplicate, subsequences |
+| `leads` | import (auto-chunk 400), pause/resume/unsubscribe, message history, reply, export, block list |
+| `email_accounts` | SMTP/OAuth accounts, warmup, suspend, tags |
+| `analytics` | campaign analytics, date ranges, global overview, mailbox/provider/client stats |
+| `webhooks` | create/update/delete + campaign webhook management |
+| `clients` | agency clients + client API keys |
+| `lead_lists` | lists, import, tags, push between lists/campaigns |
+| `crm` | lead tags, notes, tasks |
+| `inbox` | master inbox replies, categories, reminders, tasks, block domains |
+| `smart_prospect` | contact search, filters, saved/fetched searches |
+| `smart_delivery` | spam/placement tests, folders, DKIM/SPF/IP/provider reports |
+| `smart_senders` | vendors, domains, mailbox generation, orders |
+| `utilities` | one-off send email |
+
+Also available at `GET /catalog` on the deployed service.
+
+### Key convenience tools
+
+- `create_campaign`, `list_campaigns`, `get_campaign`, `delete_campaign`, `duplicate_campaign`
+- `upload_sequence`, `get_sequences`
+- `link_mailboxes`, `unlink_mailboxes`, `list_campaign_mailboxes`
+- `import_leads` (**auto-chunks at 400**), `list_campaign_leads`, `export_campaign_leads`
+- `set_schedule`, `update_campaign_settings`, `update_campaign_status`
+- `get_campaign_analytics`, `get_campaign_analytics_by_date`, `get_campaign_statistics`, `get_analytics_overview`
+- `list_email_accounts`, `get_email_account`, `create_email_account`, `update_email_account`, `configure_warmup`, `get_warmup_stats`
+- `get_lead_by_email`, `pause_lead`, `resume_lead`, `unsubscribe_lead`, `reply_to_lead`, `add_to_block_list`
+- `create_webhook`, `list_clients`, `list_lead_lists`, `list_inbox_replies`
+- `list_smartlead_endpoints`, `smartlead_request`
 
 ## Environment
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `SMARTLEAD_API_KEY` | Yes | Smartlead API key (`?api_key=` query param) |
-| `PORT` | No | HTTP port (default `3000`; Railway injects this) |
+| `SMARTLEAD_API_KEY` | Yes | Smartlead API key |
+| `PORT` | No | HTTP port (Railway injects this) |
 
 ## Local development
 
@@ -36,22 +74,10 @@ MCP endpoint: `http://localhost:3000/mcp` (Streamable HTTP).
 
 ## Deploy on Railway
 
-This service must stay running (not a cron job) so Claude can open MCP connections.
+Persistent web service (not a cron):
 
 ```bash
 railway up -y
 railway variable set SMARTLEAD_API_KEY=your_key
 railway domain
 ```
-
-Add the public URL + `/mcp` as a custom connector in Claude (**Settings → Connectors**).
-
-## Claude connector URL
-
-Production (Railway):
-
-```
-https://workspace-production-9629.up.railway.app/mcp
-```
-
-Add that URL under Claude **Settings → Connectors** as a custom connector.
