@@ -48,6 +48,10 @@ Add the public URL + `/mcp` as a custom connector in Claude (**Settings → Conn
 
 ## Claude connector URL
 
+Production (Railway):
+
 ```
-https://<your-railway-domain>/mcp
+https://workspace-production-9629.up.railway.app/mcp
 ```
+
+Add that URL under Claude **Settings → Connectors** as a custom connector.
