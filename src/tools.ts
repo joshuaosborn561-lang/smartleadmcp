@@ -415,28 +415,60 @@ export function registerTools(server: McpServer): void {
   server.registerTool(
     "set_schedule",
     {
-      description: "Configure campaign sending schedule.",
+      description:
+        "Configure campaign sending schedule. Accepts max_leads_per_day or max_new_leads_per_day; Smartlead receives max_new_leads_per_day.",
       inputSchema: {
         campaign_id: idSchema,
-        schedule: z.object({
-          timezone: z.string(),
-          days_of_the_week: z.array(z.number().int().min(0).max(6)).min(1),
-          start_hour: z.string(),
-          end_hour: z.string(),
-          min_time_btw_emails: z.number().int().min(1),
-          max_leads_per_day: z.number().int().min(1),
-        }),
+        schedule: z
+          .object({
+            timezone: z.string(),
+            days_of_the_week: z.array(z.number().int().min(0).max(6)).min(1),
+            start_hour: z.string(),
+            end_hour: z.string(),
+            min_time_btw_emails: z.number().int().min(1),
+            max_new_leads_per_day: z.number().int().min(1).optional(),
+            max_leads_per_day: z
+              .number()
+              .int()
+              .min(1)
+              .optional()
+              .describe(
+                "Alias for max_new_leads_per_day (translated before calling Smartlead)"
+              ),
+          })
+          .superRefine((schedule, ctx) => {
+            if (
+              schedule.max_new_leads_per_day === undefined &&
+              schedule.max_leads_per_day === undefined
+            ) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message:
+                  "Provide max_new_leads_per_day (or alias max_leads_per_day)",
+                path: ["max_new_leads_per_day"],
+              });
+            }
+          }),
       },
     },
     async ({ campaign_id, schedule }) =>
-      runTool(() =>
-        smartleadRequest({
+      runTool(() => {
+        const {
+          max_leads_per_day,
+          max_new_leads_per_day,
+          ...rest
+        } = schedule;
+        return smartleadRequest({
           method: "POST",
           path: "/campaigns/{campaign_id}/schedule",
           pathParams: { campaign_id },
-          body: schedule,
-        })
-      )
+          body: {
+            ...rest,
+            max_new_leads_per_day:
+              max_new_leads_per_day ?? max_leads_per_day,
+          },
+        });
+      })
   );
 
   server.registerTool(
