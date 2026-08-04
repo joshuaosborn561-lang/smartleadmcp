@@ -1,6 +1,6 @@
 {
   "name": "smartlead-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MCP server wrapping the full Smartlead API for Claude custom connectors",
   "type": "module",
   "main": "dist/index.js",
@@ -29,6 +29,7 @@
   "homepage": "https://github.com/joshuaosborn561-lang/smartleadmcp#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",
+    "@supabase/supabase-js": "^2.112.0",
     "express": "^5.1.0",
     "zod": "^3.25.76"
   },

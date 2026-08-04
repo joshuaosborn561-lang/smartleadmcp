@@ -8,6 +8,11 @@ import {
   type Lead,
 } from "./client.js";
 import { buildSequencePayload } from "./sequences.js";
+import {
+  getLeadImportStatus,
+  listLeadImportRuns,
+  startLeadImport,
+} from "./leadImportJob.js";
 
 function textResult(data: unknown, isError = false) {
   return {
@@ -958,5 +963,45 @@ export function registerTools(server: McpServer): void {
           body: options ?? {},
         })
       )
+  );
+
+  // ── Staged lead import (Supabase → Smartlead background job) ───────────
+  server.registerTool(
+    "start_lead_import",
+    {
+      description:
+        "Start a background import of unimported rows from Supabase leads_staging into a Smartlead campaign. Returns {run_id} immediately; poll get_lead_import_status for progress. Does not wait for completion. Summary-only — never returns per-lead arrays.",
+      inputSchema: {
+        campaign_id: z
+          .number()
+          .int()
+          .describe("Smartlead campaign ID matching leads_staging.campaign_id"),
+      },
+    },
+    async ({ campaign_id }) => runTool(() => startLeadImport(campaign_id))
+  );
+
+  server.registerTool(
+    "get_lead_import_status",
+    {
+      description:
+        "Get summary status for a staged lead import run: status, total_leads, imported_count, duplicate_count, invalid_count.",
+      inputSchema: {
+        run_id: z.string().uuid().describe("Import run ID from start_lead_import"),
+      },
+    },
+    async ({ run_id }) => runTool(() => getLeadImportStatus(run_id))
+  );
+
+  server.registerTool(
+    "list_lead_import_runs",
+    {
+      description:
+        "List recent staged lead import runs (compact summaries only).",
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional(),
+      },
+    },
+    async ({ limit }) => runTool(() => listLeadImportRuns(limit ?? 20))
   );
 }
