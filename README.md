@@ -44,7 +44,7 @@ Also available at `GET /catalog` on the deployed service.
 ### Key convenience tools
 
 - `create_campaign`, `list_campaigns`, `get_campaign`, `delete_campaign`, `duplicate_campaign`
-- `upload_sequence`, `get_sequences`
+- `upload_sequence` (supports per-step `variants` → Smartlead `seq_variants`), `get_sequences`
 - `link_mailboxes`, `unlink_mailboxes`, `list_campaign_mailboxes`
 - `import_leads` (**auto-chunks at 400**), `list_campaign_leads`, `export_campaign_leads`
 - `set_schedule`, `update_campaign_settings`, `update_campaign_status`

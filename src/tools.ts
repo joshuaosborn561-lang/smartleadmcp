@@ -7,6 +7,7 @@ import {
   type HttpMethod,
   type Lead,
 } from "./client.js";
+import { buildSequencePayload } from "./sequences.js";
 
 function textResult(data: unknown, isError = false) {
   return {
@@ -206,16 +207,60 @@ export function registerTools(server: McpServer): void {
     "upload_sequence",
     {
       description:
-        "Upload/replace campaign email sequences. Steps support spintax and {{merge}} tags.",
+        "Upload/replace campaign email sequences. Each step can be a single subject/body, or multiple A/B variants via `variants` (posted as Smartlead `seq_variants` with labels A, B, C...; returned by get_sequences as `sequence_variants`). Supports spintax and {{merge}} tags. Campaign must not be ACTIVE.",
       inputSchema: {
         campaign_id: idSchema,
         steps: z
           .array(
-            z.object({
-              subject: z.string(),
-              body: z.string(),
-              delay: z.number().int().min(0),
-            })
+            z
+              .object({
+                delay: z
+                  .number()
+                  .int()
+                  .min(0)
+                  .describe("Days to wait before this step sends"),
+                subject: z
+                  .string()
+                  .optional()
+                  .describe(
+                    "Subject for a single-variant step (omit or leave empty when using variants)"
+                  ),
+                body: z
+                  .string()
+                  .optional()
+                  .describe(
+                    "Body for a single-variant step (omit when using variants)"
+                  ),
+                variants: z
+                  .array(
+                    z.object({
+                      subject: z.string().describe("Variant subject"),
+                      body: z.string().describe("Variant body HTML/text"),
+                      variant_label: z
+                        .string()
+                        .optional()
+                        .describe(
+                          'Optional label override (defaults to A, B, C...)'
+                        ),
+                    })
+                  )
+                  .min(2)
+                  .optional()
+                  .describe(
+                    "When present, posts native Smartlead seq_variants for this step"
+                  ),
+              })
+              .superRefine((step, ctx) => {
+                const hasVariants = Boolean(step.variants?.length);
+                if (!hasVariants && step.body === undefined) {
+                  ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message:
+                      "Provide either `body` (single-variant step) or `variants` (multi-variant step)",
+                    path: ["body"],
+                  });
+                }
+              })
           )
           .min(1),
       },
@@ -227,13 +272,9 @@ export function registerTools(server: McpServer): void {
           path: "/campaigns/{campaign_id}/sequences",
           pathParams: { campaign_id },
           body: {
-            sequences: steps.map((step, index) => ({
-              id: null,
-              seq_number: index + 1,
-              subject: step.subject,
-              email_body: step.body,
-              seq_delay_details: { delay_in_days: step.delay },
-            })),
+            sequences: steps.map((step, index) =>
+              buildSequencePayload(step, index + 1)
+            ),
           },
         })
       )
