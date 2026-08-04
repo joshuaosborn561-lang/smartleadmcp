@@ -1,5 +1,5 @@
 import { LEAD_CHUNK_SIZE, sleep, smartleadRequest } from "./client.js";
-import { getSupabase } from "./supabase.js";
+import { db } from "./supabase.js";
 
 const CHUNK_DELAY_MS = 1500;
 
@@ -38,7 +38,11 @@ type ChunkCounts = {
 
 function num(value: unknown): number {
   if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string" && value.trim() !== "" && !Number.isNaN(Number(value))) {
+  if (
+    typeof value === "string" &&
+    value.trim() !== "" &&
+    !Number.isNaN(Number(value))
+  ) {
     return Number(value);
   }
   return 0;
@@ -103,8 +107,7 @@ function toSmartleadLead(row: StagingLead): Record<string, unknown> {
 }
 
 async function appendLog(runId: string, message: string): Promise<void> {
-  const supabase = getSupabase();
-  const { error } = await supabase.from("lead_import_logs").insert({
+  const { error } = await db.insert("lead_import_logs", {
     run_id: runId,
     message,
   });
@@ -117,11 +120,7 @@ async function updateRun(
   runId: string,
   patch: Record<string, unknown>
 ): Promise<void> {
-  const supabase = getSupabase();
-  const { error } = await supabase
-    .from("lead_import_runs")
-    .update(patch)
-    .eq("id", runId);
+  const { error } = await db.update("lead_import_runs", `id=eq.${runId}`, patch);
   if (error) {
     throw new Error(`Failed to update lead_import_runs: ${error.message}`);
   }
@@ -131,33 +130,29 @@ async function fetchNextChunk(
   campaignId: number,
   limit: number
 ): Promise<StagingLead[]> {
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("leads_staging")
-    .select(
-      "id, campaign_id, campaign_name, email, first_name, last_name, company_name, location, local_sports_team"
-    )
-    .eq("campaign_id", campaignId)
-    .eq("imported", false)
-    .order("created_at", { ascending: true })
-    .limit(limit);
-
+  const { data, error } = await db.select<StagingLead[]>(
+    "leads_staging",
+    [
+      "select=id,campaign_id,campaign_name,email,first_name,last_name,company_name,location,local_sports_team",
+      `campaign_id=eq.${campaignId}`,
+      "imported=eq.false",
+      "order=created_at.asc",
+      `limit=${limit}`,
+    ].join("&")
+  );
   if (error) {
     throw new Error(`Failed to fetch leads_staging: ${error.message}`);
   }
-  return (data || []) as StagingLead[];
+  return data || [];
 }
 
-async function markImported(
-  ids: string[],
-  runId: string
-): Promise<void> {
+async function markImported(ids: string[], runId: string): Promise<void> {
   if (ids.length === 0) return;
-  const supabase = getSupabase();
-  const { error } = await supabase
-    .from("leads_staging")
-    .update({ imported: true, import_run_id: runId })
-    .in("id", ids);
+  const inList = `(${ids.join(",")})`;
+  const { error } = await db.update("leads_staging", `id=in.${inList}`, {
+    imported: true,
+    import_run_id: runId,
+  });
   if (error) {
     throw new Error(`Failed to mark leads imported: ${error.message}`);
   }
@@ -168,38 +163,40 @@ export async function startLeadImport(campaignId: number): Promise<{
   total_leads: number;
   campaign_name: string | null;
 }> {
-  const supabase = getSupabase();
-
-  const { count, error: countError } = await supabase
-    .from("leads_staging")
-    .select("id", { count: "exact", head: true })
-    .eq("campaign_id", campaignId)
-    .eq("imported", false);
-  if (countError) {
-    throw new Error(`Failed to count staged leads: ${countError.message}`);
+  const countRes = await db.countExact(
+    "leads_staging",
+    `campaign_id=eq.${campaignId}&imported=eq.false`
+  );
+  if (countRes.error) {
+    throw new Error(`Failed to count staged leads: ${countRes.error.message}`);
   }
 
-  const totalLeads = count ?? 0;
+  const totalLeads = countRes.count ?? 0;
   if (totalLeads === 0) {
     throw new Error(
       `No unimported leads found in leads_staging for campaign_id ${campaignId}`
     );
   }
 
-  const { data: sample, error: sampleError } = await supabase
-    .from("leads_staging")
-    .select("campaign_name")
-    .eq("campaign_id", campaignId)
-    .eq("imported", false)
-    .limit(1);
-  if (sampleError) {
-    throw new Error(`Failed to read staged campaign name: ${sampleError.message}`);
+  const sampleRes = await db.select<Array<{ campaign_name: string | null }>>(
+    "leads_staging",
+    [
+      "select=campaign_name",
+      `campaign_id=eq.${campaignId}`,
+      "imported=eq.false",
+      "limit=1",
+    ].join("&")
+  );
+  if (sampleRes.error) {
+    throw new Error(
+      `Failed to read staged campaign name: ${sampleRes.error.message}`
+    );
   }
-  const campaignName = sample?.[0]?.campaign_name ?? null;
+  const campaignName = sampleRes.data?.[0]?.campaign_name ?? null;
 
-  const { data: run, error: insertError } = await supabase
-    .from("lead_import_runs")
-    .insert({
+  const insertRes = await db.insert<Array<{ id: string }>>(
+    "lead_import_runs",
+    {
       campaign_id: campaignId,
       campaign_name: campaignName,
       status: "queued",
@@ -207,23 +204,21 @@ export async function startLeadImport(campaignId: number): Promise<{
       imported_count: 0,
       duplicate_count: 0,
       invalid_count: 0,
-    })
-    .select("id")
-    .single();
-
-  if (insertError || !run) {
+    },
+    { returnRepresentation: true }
+  );
+  if (insertRes.error || !insertRes.data?.[0]?.id) {
     throw new Error(
-      `Failed to create lead_import_runs row: ${insertError?.message || "unknown"}`
+      `Failed to create lead_import_runs row: ${insertRes.error?.message || "unknown"}`
     );
   }
 
-  const runId = run.id as string;
+  const runId = insertRes.data[0].id;
   await appendLog(
     runId,
     `Queued import for campaign ${campaignId} (${campaignName || "unnamed"}): ${totalLeads} unimported leads`
   );
 
-  // Fire-and-forget background job; state lives in Supabase.
   void processLeadImportRun(runId, campaignId).catch(async (error) => {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`Lead import run ${runId} crashed:`, message);
@@ -285,8 +280,7 @@ export async function processLeadImportRun(
       duplicateTotal += counts.duplicate;
       invalidTotal += counts.invalid;
 
-      // Mark the whole chunk imported so retries never re-send these rows.
-      // Duplicates/invalids still count as "processed" for staging purposes.
+      // Mark whole chunk processed so retries never re-send these rows.
       await markImported(
         rows.map((r) => r.id),
         runId
@@ -353,33 +347,34 @@ function summarizeRun(row: Record<string, unknown>): LeadImportRunSummary {
 export async function getLeadImportStatus(
   runId: string
 ): Promise<LeadImportRunSummary> {
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("lead_import_runs")
-    .select(
-      "id, campaign_id, campaign_name, status, total_leads, imported_count, duplicate_count, invalid_count, error_message, started_at, completed_at, created_at"
-    )
-    .eq("id", runId)
-    .single();
-  if (error || !data) {
+  const { data, error } = await db.select<Record<string, unknown>[]>(
+    "lead_import_runs",
+    [
+      "select=id,campaign_id,campaign_name,status,total_leads,imported_count,duplicate_count,invalid_count,error_message,started_at,completed_at,created_at",
+      `id=eq.${runId}`,
+      "limit=1",
+    ].join("&")
+  );
+  if (error || !data?.[0]) {
     throw new Error(`Import run not found: ${runId}`);
   }
-  return summarizeRun(data as Record<string, unknown>);
+  return summarizeRun(data[0]);
 }
 
 export async function listLeadImportRuns(
   limit = 20
 ): Promise<LeadImportRunSummary[]> {
-  const supabase = getSupabase();
-  const { data, error } = await supabase
-    .from("lead_import_runs")
-    .select(
-      "id, campaign_id, campaign_name, status, total_leads, imported_count, duplicate_count, invalid_count, error_message, started_at, completed_at, created_at"
-    )
-    .order("created_at", { ascending: false })
-    .limit(Math.min(Math.max(limit, 1), 100));
+  const safeLimit = Math.min(Math.max(limit, 1), 100);
+  const { data, error } = await db.select<Record<string, unknown>[]>(
+    "lead_import_runs",
+    [
+      "select=id,campaign_id,campaign_name,status,total_leads,imported_count,duplicate_count,invalid_count,error_message,started_at,completed_at,created_at",
+      "order=created_at.desc",
+      `limit=${safeLimit}`,
+    ].join("&")
+  );
   if (error) {
     throw new Error(`Failed to list import runs: ${error.message}`);
   }
-  return (data || []).map((row) => summarizeRun(row as Record<string, unknown>));
+  return (data || []).map((row) => summarizeRun(row));
 }
