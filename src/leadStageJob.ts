@@ -66,12 +66,16 @@ async function fetchCsvText(source: {
   }
 
   if (source.payload_name) {
-    const quoted = `"${source.payload_name.replace(/"/g, '\\"')}"`;
+    // PostgREST: plain eq.value for simple tokens; quote only when needed.
+    const needsQuotes = /[^a-zA-Z0-9_-]/.test(source.payload_name);
+    const filterValue = needsQuotes
+      ? `"${source.payload_name.replace(/"/g, '\\"')}"`
+      : source.payload_name;
     const { data, error } = await db.select<Array<{ content: string }>>(
       "csv_payloads",
       [
         "select=content",
-        `name=eq.${encodeURIComponent(quoted)}`,
+        `name=eq.${encodeURIComponent(filterValue)}`,
         "limit=1",
       ].join("&")
     );
