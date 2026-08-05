@@ -50,7 +50,21 @@
       "name": "update_campaign_settings",
       "method": "POST",
       "path": "/campaigns/{campaign_id}/settings",
-      "description": "Update campaign settings"
+      "description": "Update campaign settings (tracking, stop, plain text, AI ESP, bounce_autopause_threshold, ai_categorisation_options, out_of_office_detection_settings)"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_campaign_ai_bounce_settings",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/settings",
+      "description": "Typed update for AI lead categorisation + bounce auto-protection + OOO detection settings"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_campaigns_ai_bounce_settings",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/settings",
+      "description": "Batch typed update for AI categorisation + bounce auto-protection across multiple campaigns"
     },
     {
       "category": "campaigns",

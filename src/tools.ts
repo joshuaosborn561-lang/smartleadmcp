@@ -18,6 +18,10 @@ import {
   listLeadStageRuns,
   startLeadStaging,
 } from "./leadStageJob.js";
+import {
+  BCP_AI_BOUNCE_DEFAULTS,
+  buildAiBounceSettingsPayload,
+} from "./aiBounceSettings.js";
 
 function textResult(data: unknown, isError = false) {
   return {
@@ -485,7 +489,7 @@ export function registerTools(server: McpServer): void {
     "update_campaign_settings",
     {
       description:
-        "Update campaign settings (tracking, stop conditions, plain text, AI ESP matching, etc.).",
+        "Update campaign settings via POST /campaigns/{id}/settings. Supports tracking, stop conditions, plain text, AI ESP matching, plus AI lead categorisation (`ai_categorisation_options`: category ID numbers), OOO detection (`out_of_office_detection_settings`), and bounce auto-protection (`bounce_autopause_threshold` as a string percent). Prefer `update_campaign_ai_bounce_settings` for typed AI/bounce fields. Note: GET /campaigns/{id} does not echo AI/bounce/OOO fields back.",
       inputSchema: {
         campaign_id: idSchema,
         settings: z.record(z.string(), z.unknown()),
@@ -500,6 +504,163 @@ export function registerTools(server: McpServer): void {
           body: settings,
         })
       )
+  );
+
+  const oooSettingsSchema = z.object({
+    ignoreOOOasReply: z
+      .boolean()
+      .describe(
+        "When true, auto-categorised OOO replies are ignored from reply %. UI: 'Ignore the auto-categorised OOO reply from the reply %'."
+      ),
+    autoReactivateOOO: z
+      .boolean()
+      .describe(
+        "Deprecated delay-based OOO restart. Mutually exclusive with autoCategorizeOOO."
+      ),
+    reactivateOOOwithDelay: z
+      .number()
+      .nullable()
+      .describe(
+        "Days to wait before delay-based OOO reactivation; null when unused."
+      ),
+    autoCategorizeOOO: z
+      .boolean()
+      .describe(
+        "AI restart when lead returns (parses OOO copy). Mutually exclusive with autoReactivateOOO. UI: 'Automatically restart ai-categorised OOO when lead returns'."
+      ),
+  });
+
+  server.registerTool(
+    "update_campaign_ai_bounce_settings",
+    {
+      description:
+        "Update Intelligent AI Lead Categorisation + High Bounce Rate Auto-Protection on a campaign (POST /campaigns/{id}/settings). Use category IDs from fetch_lead_categories (defaults: Out Of Office=6, Interested=1, Not Interested=3). autoCategorizeOOO and autoReactivateOOO are mutually exclusive. bounce_autopause_threshold must be a string (e.g. \"7\"); pass null to clear. Smartlead's GET /campaigns/{id} does not return these fields — write success + schema validation is the public-API confirmation path.",
+      inputSchema: {
+        campaign_id: idSchema,
+        bounce_autopause_threshold: z
+          .string()
+          .nullable()
+          .optional()
+          .describe('Bounce auto-pause threshold percent as string, e.g. "7". null clears.'),
+        ai_categorisation_options: z
+          .array(z.number())
+          .optional()
+          .describe(
+            "Lead category IDs to auto-categorise (numbers). Example: [6,1,3] for Out Of Office, Interested, Not Interested."
+          ),
+        out_of_office_detection_settings: oooSettingsSchema.optional(),
+        use_bcp_defaults: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, apply BCP defaults: bounce 7%, AI categories [6,1,3], autoCategorizeOOO=true, ignoreOOOasReply=false, autoReactivateOOO=false. Explicit fields override defaults."
+          ),
+      },
+    },
+    async ({
+      campaign_id,
+      bounce_autopause_threshold,
+      ai_categorisation_options,
+      out_of_office_detection_settings,
+      use_bcp_defaults,
+    }) =>
+      runTool(async () => {
+        const base = use_bcp_defaults ? { ...BCP_AI_BOUNCE_DEFAULTS } : {};
+        const merged = {
+          ...base,
+          ...(bounce_autopause_threshold !== undefined
+            ? { bounce_autopause_threshold }
+            : {}),
+          ...(ai_categorisation_options !== undefined
+            ? { ai_categorisation_options }
+            : {}),
+          ...(out_of_office_detection_settings !== undefined
+            ? { out_of_office_detection_settings }
+            : {}),
+        };
+        const body = buildAiBounceSettingsPayload(merged);
+        const result = await smartleadRequest({
+          method: "POST",
+          path: "/campaigns/{campaign_id}/settings",
+          pathParams: { campaign_id },
+          body,
+        });
+        return {
+          result,
+          applied: body,
+          read_back_note:
+            "Smartlead GET /campaigns/{id} does not include bounce_autopause_threshold, ai_categorisation_options, or out_of_office_detection_settings. Confirm in the Smartlead UI General settings, or rely on write ok:true plus field validation errors for malformed payloads.",
+        };
+      })
+  );
+
+  server.registerTool(
+    "update_campaigns_ai_bounce_settings",
+    {
+      description:
+        "Batch-apply AI categorisation + bounce auto-protection settings to multiple campaigns. Same payload rules as update_campaign_ai_bounce_settings.",
+      inputSchema: {
+        campaign_ids: z.array(idSchema).min(1),
+        bounce_autopause_threshold: z.string().nullable().optional(),
+        ai_categorisation_options: z.array(z.number()).optional(),
+        out_of_office_detection_settings: oooSettingsSchema.optional(),
+        use_bcp_defaults: z.boolean().optional(),
+      },
+    },
+    async ({
+      campaign_ids,
+      bounce_autopause_threshold,
+      ai_categorisation_options,
+      out_of_office_detection_settings,
+      use_bcp_defaults,
+    }) =>
+      runTool(async () => {
+        const base = use_bcp_defaults ? { ...BCP_AI_BOUNCE_DEFAULTS } : {};
+        const merged = {
+          ...base,
+          ...(bounce_autopause_threshold !== undefined
+            ? { bounce_autopause_threshold }
+            : {}),
+          ...(ai_categorisation_options !== undefined
+            ? { ai_categorisation_options }
+            : {}),
+          ...(out_of_office_detection_settings !== undefined
+            ? { out_of_office_detection_settings }
+            : {}),
+        };
+        const body = buildAiBounceSettingsPayload(merged);
+        const results: Array<{
+          campaign_id: string | number;
+          ok: boolean;
+          response?: unknown;
+          error?: string;
+        }> = [];
+        for (const campaign_id of campaign_ids) {
+          try {
+            const response = await smartleadRequest({
+              method: "POST",
+              path: "/campaigns/{campaign_id}/settings",
+              pathParams: { campaign_id },
+              body,
+            });
+            results.push({ campaign_id, ok: true, response });
+          } catch (error) {
+            results.push({
+              campaign_id,
+              ok: false,
+              error: error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+        return {
+          applied: body,
+          success_count: results.filter((r) => r.ok).length,
+          failure_count: results.filter((r) => !r.ok).length,
+          results,
+          read_back_note:
+            "Smartlead GET /campaigns/{id} does not echo these fields. Verify in the UI General tab.",
+        };
+      })
   );
 
   server.registerTool(

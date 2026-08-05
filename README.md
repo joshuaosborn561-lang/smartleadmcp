@@ -48,6 +48,7 @@ Also available at `GET /catalog` on the deployed service.
 - `link_mailboxes`, `unlink_mailboxes`, `list_campaign_mailboxes`
 - `import_leads` (**auto-chunks at 400**), `list_campaign_leads`, `export_campaign_leads`
 - `set_schedule`, `update_campaign_settings`, `update_campaign_status`
+- `update_campaign_ai_bounce_settings`, `update_campaigns_ai_bounce_settings` (AI lead categorisation + bounce auto-protection via `bounce_autopause_threshold`, `ai_categorisation_options`, `out_of_office_detection_settings`)
 - `get_campaign_analytics`, `get_campaign_analytics_by_date`, `get_campaign_statistics`, `get_analytics_overview`
 - `list_email_accounts`, `get_email_account`, `create_email_account`, `update_email_account`, `configure_warmup`, `get_warmup_stats`
 - `get_lead_by_email`, `pause_lead`, `resume_lead`, `unsubscribe_lead`, `reply_to_lead`, `add_to_block_list`
