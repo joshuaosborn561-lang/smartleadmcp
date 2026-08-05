@@ -7,7 +7,7 @@ import { registerTools } from "./tools.js";
 function createServer(): McpServer {
   const server = new McpServer({
     name: "smartlead-mcp",
-    version: "1.2.0",
+    version: "1.3.0",
   });
   registerTools(server);
   return server;
@@ -19,7 +19,7 @@ app.use(express.json({ limit: "25mb" }));
 app.get("/", (_req, res) => {
   res.json({
     name: "smartlead-mcp",
-    version: "1.2.0",
+    version: "1.3.0",
     mcp: "/mcp",
     status: "ok",
     catalog: {

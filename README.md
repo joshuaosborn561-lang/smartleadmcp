@@ -52,6 +52,7 @@ Also available at `GET /catalog` on the deployed service.
 - `list_email_accounts`, `get_email_account`, `create_email_account`, `update_email_account`, `configure_warmup`, `get_warmup_stats`
 - `get_lead_by_email`, `pause_lead`, `resume_lead`, `unsubscribe_lead`, `reply_to_lead`, `add_to_block_list`
 - `create_webhook`, `list_clients`, `list_lead_lists`, `list_inbox_replies`
+- `stage_leads_from_url`, `get_lead_stage_status`, `list_lead_stage_runs` (CSV URL/`csv_payloads` → `leads_staging`, chunked ~400; `auto_import=true` queues Smartlead import)
 - `start_lead_import`, `get_lead_import_status`, `list_lead_import_runs` (Supabase `leads_staging` → Smartlead background import)
 - `list_smartlead_endpoints`, `smartlead_request`
 

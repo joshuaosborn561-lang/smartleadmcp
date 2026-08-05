@@ -13,6 +13,11 @@ import {
   listLeadImportRuns,
   startLeadImport,
 } from "./leadImportJob.js";
+import {
+  getLeadStageStatus,
+  listLeadStageRuns,
+  startLeadStaging,
+} from "./leadStageJob.js";
 
 function textResult(data: unknown, isError = false) {
   return {
@@ -1003,5 +1008,68 @@ export function registerTools(server: McpServer): void {
       },
     },
     async ({ limit }) => runTool(() => listLeadImportRuns(limit ?? 20))
+  );
+
+  // ── CSV staging into leads_staging (server-side, chunked) ──────────────
+  server.registerTool(
+    "stage_leads_from_url",
+    {
+      description:
+        "Download a CSV (or load csv_payloads by name) and insert rows into Supabase leads_staging in safe ~400-row chunks. Returns {run_id} immediately. Set auto_import=true to automatically queue start_lead_import when staging finishes — use that for walk-away full pipeline loads. Poll get_lead_stage_status (and get_lead_import_status if auto_import). Expected CSV headers: email (required), first_name, last_name, company_name, location, local_sports_team / Local_Sports_Team.",
+      inputSchema: {
+        campaign_id: z.number().int(),
+        campaign_name: z.string().min(1),
+        csv_url: z
+          .string()
+          .url()
+          .optional()
+          .describe("Public HTTP(S) URL to a CSV file"),
+        payload_name: z
+          .string()
+          .optional()
+          .describe(
+            "Alternative to csv_url: name of a row in Supabase csv_payloads"
+          ),
+        auto_import: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, automatically start Smartlead import after staging completes"
+          ),
+      },
+    },
+    async ({ campaign_id, campaign_name, csv_url, payload_name, auto_import }) =>
+      runTool(() =>
+        startLeadStaging({
+          campaign_id,
+          campaign_name,
+          csv_url,
+          payload_name,
+          auto_import,
+        })
+      )
+  );
+
+  server.registerTool(
+    "get_lead_stage_status",
+    {
+      description:
+        "Get summary status for a CSV staging run (staged_count, skipped_count, chunk_count, import_run_id if auto_import).",
+      inputSchema: {
+        run_id: z.string().uuid(),
+      },
+    },
+    async ({ run_id }) => runTool(() => getLeadStageStatus(run_id))
+  );
+
+  server.registerTool(
+    "list_lead_stage_runs",
+    {
+      description: "List recent CSV staging runs (compact summaries only).",
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional(),
+      },
+    },
+    async ({ limit }) => runTool(() => listLeadStageRuns(limit ?? 20))
   );
 }
