@@ -1,0 +1,1372 @@
+{
+  "base_url": "https://server.smartlead.ai/api/v1",
+  "source": "https://api.smartlead.ai + Smartlead help center full API docs",
+  "count": 195,
+  "endpoints": [
+    {
+      "category": "campaigns",
+      "name": "list_campaigns",
+      "method": "GET",
+      "path": "/campaigns/",
+      "description": "List all campaigns"
+    },
+    {
+      "category": "campaigns",
+      "name": "get_campaign",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}",
+      "description": "Get campaign by ID"
+    },
+    {
+      "category": "campaigns",
+      "name": "create_campaign",
+      "method": "POST",
+      "path": "/campaigns/create",
+      "description": "Create a campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "delete_campaign",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}",
+      "description": "Delete a campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_campaign_status",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/status",
+      "description": "Update campaign status (START/PAUSED/STOPPED)"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_campaign_schedule",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/schedule",
+      "description": "Set campaign schedule"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_campaign_settings",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/settings",
+      "description": "Update campaign settings"
+    },
+    {
+      "category": "campaigns",
+      "name": "get_sequences",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/sequences",
+      "description": "Fetch campaign sequences"
+    },
+    {
+      "category": "campaigns",
+      "name": "save_sequences",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/sequences",
+      "description": "Create/update campaign sequences"
+    },
+    {
+      "category": "campaigns",
+      "name": "duplicate_campaign",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/duplicate",
+      "description": "Duplicate a campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "create_subsequence",
+      "method": "POST",
+      "path": "/campaigns/create-subsequence",
+      "description": "Create a campaign subsequence"
+    },
+    {
+      "category": "campaigns",
+      "name": "get_campaign_email_accounts",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/email-accounts",
+      "description": "List email accounts linked to campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "add_campaign_email_accounts",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/email-accounts",
+      "description": "Link email accounts to campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "remove_campaign_email_accounts",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}/email-accounts",
+      "description": "Unlink email accounts from campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_team_member",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/team-member",
+      "description": "Update campaign team member assignment"
+    },
+    {
+      "category": "campaigns",
+      "name": "send_test_email",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/send-test-email",
+      "description": "Send a test email for a campaign"
+    },
+    {
+      "category": "campaigns",
+      "name": "all_leads_activities",
+      "method": "GET",
+      "path": "/campaigns/all-leads-activities",
+      "description": "Fetch lead activities across campaigns"
+    },
+    {
+      "category": "campaigns",
+      "name": "update_lead_email_account",
+      "method": "POST",
+      "path": "/campaigns/update-lead-email-account",
+      "description": "Change the mailbox assigned to a lead"
+    },
+    {
+      "category": "leads",
+      "name": "list_campaign_leads",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads",
+      "description": "List leads in a campaign"
+    },
+    {
+      "category": "leads",
+      "name": "import_campaign_leads",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads",
+      "description": "Import leads (max 400/request)"
+    },
+    {
+      "category": "leads",
+      "name": "update_campaign_lead",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}",
+      "description": "Update a lead in a campaign"
+    },
+    {
+      "category": "leads",
+      "name": "delete_campaign_lead",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}",
+      "description": "Delete a lead from a campaign"
+    },
+    {
+      "category": "leads",
+      "name": "pause_lead",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/pause",
+      "description": "Pause a lead"
+    },
+    {
+      "category": "leads",
+      "name": "resume_lead",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/resume",
+      "description": "Resume a lead"
+    },
+    {
+      "category": "leads",
+      "name": "unsubscribe_campaign_lead",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/unsubscribe",
+      "description": "Unsubscribe lead from campaign"
+    },
+    {
+      "category": "leads",
+      "name": "update_lead_category",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/category",
+      "description": "Update lead category"
+    },
+    {
+      "category": "leads",
+      "name": "mark_lead_complete",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/leads/{lead_map_id}/manual-complete",
+      "description": "Manually complete a lead"
+    },
+    {
+      "category": "leads",
+      "name": "get_message_history",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads/{lead_id}/message-history",
+      "description": "Fetch lead message history"
+    },
+    {
+      "category": "leads",
+      "name": "reply_email_thread",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/reply-email-thread",
+      "description": "Reply in a lead email thread"
+    },
+    {
+      "category": "leads",
+      "name": "forward_email",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/forward-email",
+      "description": "Forward a lead email"
+    },
+    {
+      "category": "leads",
+      "name": "export_campaign_leads",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads-export",
+      "description": "Export campaign leads CSV"
+    },
+    {
+      "category": "leads",
+      "name": "get_lead_by_email",
+      "method": "GET",
+      "path": "/leads/",
+      "description": "Fetch lead by email (?email=)"
+    },
+    {
+      "category": "leads",
+      "name": "get_lead",
+      "method": "GET",
+      "path": "/leads/{lead_id}",
+      "description": "Get lead by ID"
+    },
+    {
+      "category": "leads",
+      "name": "fetch_lead_categories",
+      "method": "GET",
+      "path": "/leads/fetch-categories",
+      "description": "List lead categories"
+    },
+    {
+      "category": "leads",
+      "name": "unsubscribe_lead_global",
+      "method": "POST",
+      "path": "/leads/{lead_id}/unsubscribe",
+      "description": "Globally unsubscribe a lead"
+    },
+    {
+      "category": "leads",
+      "name": "add_domain_block_list",
+      "method": "POST",
+      "path": "/leads/add-domain-block-list",
+      "description": "Add email/domain to global block list"
+    },
+    {
+      "category": "leads",
+      "name": "get_domain_block_list",
+      "method": "GET",
+      "path": "/leads/get-domain-block-list",
+      "description": "Get global domain block list"
+    },
+    {
+      "category": "leads",
+      "name": "delete_domain_block_list",
+      "method": "DELETE",
+      "path": "/leads/delete-domain-block-list",
+      "description": "Remove from domain block list"
+    },
+    {
+      "category": "leads",
+      "name": "push_to_campaign",
+      "method": "POST",
+      "path": "/leads/push-to-campaign",
+      "description": "Push leads into a campaign"
+    },
+    {
+      "category": "leads",
+      "name": "push_between_lists",
+      "method": "POST",
+      "path": "/leads/leads/push-between-lists",
+      "description": "Move/copy leads between lists"
+    },
+    {
+      "category": "email_accounts",
+      "name": "list_email_accounts",
+      "method": "GET",
+      "path": "/email-accounts/",
+      "description": "List email accounts"
+    },
+    {
+      "category": "email_accounts",
+      "name": "get_email_account",
+      "method": "GET",
+      "path": "/email-accounts/{email_account_id}/",
+      "description": "Get email account by ID"
+    },
+    {
+      "category": "email_accounts",
+      "name": "create_email_account_smtp",
+      "method": "POST",
+      "path": "/email-accounts/save",
+      "description": "Create SMTP email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "create_email_account_oauth",
+      "method": "POST",
+      "path": "/email-accounts/save-oauth",
+      "description": "Create OAuth email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "update_email_account",
+      "method": "POST",
+      "path": "/email-accounts/{email_account_id}",
+      "description": "Update email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "delete_email_account",
+      "method": "DELETE",
+      "path": "/email-accounts/{email_account_id}",
+      "description": "Delete email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "suspend_email_account",
+      "method": "PUT",
+      "path": "/email-accounts/suspend/{email_account_id}",
+      "description": "Suspend email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "unsuspend_email_account",
+      "method": "DELETE",
+      "path": "/email-accounts/unsuspend/{email_account_id}",
+      "description": "Unsuspend email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "configure_warmup",
+      "method": "POST",
+      "path": "/email-accounts/{email_account_id}/warmup",
+      "description": "Configure warmup settings"
+    },
+    {
+      "category": "email_accounts",
+      "name": "get_warmup_stats",
+      "method": "GET",
+      "path": "/email-accounts/{email_account_id}/warmup-stats",
+      "description": "Get warmup stats"
+    },
+    {
+      "category": "email_accounts",
+      "name": "list_email_account_tags",
+      "method": "GET",
+      "path": "/email-accounts/tags",
+      "description": "List email account tags"
+    },
+    {
+      "category": "email_accounts",
+      "name": "manage_email_account_tags",
+      "method": "POST",
+      "path": "/email-accounts/tag-manager",
+      "description": "Create/manage email account tags"
+    },
+    {
+      "category": "email_accounts",
+      "name": "list_tagged_email_accounts",
+      "method": "POST",
+      "path": "/email-accounts/tag-list",
+      "description": "List email accounts by tags"
+    },
+    {
+      "category": "email_accounts",
+      "name": "assign_email_account_tag",
+      "method": "POST",
+      "path": "/email-accounts/tag-mapping",
+      "description": "Assign tag to email account"
+    },
+    {
+      "category": "email_accounts",
+      "name": "remove_email_account_tag",
+      "method": "DELETE",
+      "path": "/email-accounts/tag-mapping",
+      "description": "Remove tag from email account"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_analytics",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/analytics",
+      "description": "Top-level campaign analytics"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_analytics_by_date",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/analytics-by-date",
+      "description": "Campaign analytics by date range"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_statistics",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/statistics",
+      "description": "Detailed campaign statistics"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_top_level_analytics_by_date",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/top-level-analytics-by-date",
+      "description": "Top-level analytics by date"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_lead_statistics",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/leads-statistics",
+      "description": "Campaign lead statistics"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_mailbox_statistics",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/mailbox-statistics",
+      "description": "Campaign mailbox statistics"
+    },
+    {
+      "category": "analytics",
+      "name": "analytics_overview",
+      "method": "GET",
+      "path": "/analytics/overall-stats-v2",
+      "description": "Global analytics overview"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_list_analytics",
+      "method": "GET",
+      "path": "/analytics/campaign/list",
+      "description": "Analytics campaign list"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_overall_stats",
+      "method": "GET",
+      "path": "/analytics/campaign/overall-stats",
+      "description": "Campaign overall stats"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_status_stats",
+      "method": "GET",
+      "path": "/analytics/campaign/status-stats",
+      "description": "Campaign status stats"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_response_stats",
+      "method": "GET",
+      "path": "/analytics/campaign/response-stats",
+      "description": "Campaign response stats"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_followup_reply_rate",
+      "method": "GET",
+      "path": "/analytics/campaign/follow-up-reply-rate",
+      "description": "Follow-up reply rate"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_lead_to_reply_time",
+      "method": "GET",
+      "path": "/analytics/campaign/lead-to-reply-time",
+      "description": "Lead to reply time"
+    },
+    {
+      "category": "analytics",
+      "name": "campaign_first_reply_leads",
+      "method": "GET",
+      "path": "/analytics/campaign/leads-take-for-first-reply",
+      "description": "Leads time-to-first-reply"
+    },
+    {
+      "category": "analytics",
+      "name": "day_wise_stats",
+      "method": "GET",
+      "path": "/analytics/day-wise-overall-stats",
+      "description": "Day-wise overall stats"
+    },
+    {
+      "category": "analytics",
+      "name": "day_wise_stats_by_sent_time",
+      "method": "GET",
+      "path": "/analytics/day-wise-overall-stats-by-sent-time",
+      "description": "Day-wise stats by sent time"
+    },
+    {
+      "category": "analytics",
+      "name": "day_wise_positive_reply",
+      "method": "GET",
+      "path": "/analytics/day-wise-positive-reply-stats",
+      "description": "Day-wise positive reply stats"
+    },
+    {
+      "category": "analytics",
+      "name": "day_wise_positive_reply_by_sent",
+      "method": "GET",
+      "path": "/analytics/day-wise-positive-reply-stats-by-sent-time",
+      "description": "Day-wise positive reply by sent time"
+    },
+    {
+      "category": "analytics",
+      "name": "lead_overall_stats",
+      "method": "GET",
+      "path": "/analytics/lead/overall-stats",
+      "description": "Lead overall stats"
+    },
+    {
+      "category": "analytics",
+      "name": "lead_category_response",
+      "method": "GET",
+      "path": "/analytics/lead/category-wise-response",
+      "description": "Lead category-wise response"
+    },
+    {
+      "category": "analytics",
+      "name": "mailbox_overall_stats",
+      "method": "GET",
+      "path": "/analytics/mailbox/overall-stats",
+      "description": "Mailbox overall stats"
+    },
+    {
+      "category": "analytics",
+      "name": "mailbox_domain_health",
+      "method": "GET",
+      "path": "/analytics/mailbox/domain-wise-health-metrics",
+      "description": "Domain-wise mailbox health"
+    },
+    {
+      "category": "analytics",
+      "name": "mailbox_name_health",
+      "method": "GET",
+      "path": "/analytics/mailbox/name-wise-health-metrics",
+      "description": "Email-wise mailbox health"
+    },
+    {
+      "category": "analytics",
+      "name": "mailbox_provider_performance",
+      "method": "GET",
+      "path": "/analytics/mailbox/provider-wise-overall-performance",
+      "description": "Provider-wise mailbox performance"
+    },
+    {
+      "category": "analytics",
+      "name": "client_list_analytics",
+      "method": "GET",
+      "path": "/analytics/client/list",
+      "description": "Analytics client list"
+    },
+    {
+      "category": "analytics",
+      "name": "client_overall_stats",
+      "method": "GET",
+      "path": "/analytics/client/overall-stats",
+      "description": "Client overall stats"
+    },
+    {
+      "category": "analytics",
+      "name": "client_month_wise_count",
+      "method": "GET",
+      "path": "/analytics/client/month-wise-count",
+      "description": "Month-wise client count"
+    },
+    {
+      "category": "analytics",
+      "name": "team_board_stats",
+      "method": "GET",
+      "path": "/analytics/team-board/overall-stats",
+      "description": "Team board overall stats"
+    },
+    {
+      "category": "webhooks",
+      "name": "create_webhook",
+      "method": "POST",
+      "path": "/webhook/create",
+      "description": "Create a webhook"
+    },
+    {
+      "category": "webhooks",
+      "name": "get_webhook",
+      "method": "GET",
+      "path": "/webhook/{webhook_id}",
+      "description": "Get webhook by ID"
+    },
+    {
+      "category": "webhooks",
+      "name": "update_webhook",
+      "method": "PUT",
+      "path": "/webhook/update/{webhook_id}",
+      "description": "Update a webhook"
+    },
+    {
+      "category": "webhooks",
+      "name": "delete_webhook",
+      "method": "DELETE",
+      "path": "/webhook/delete",
+      "description": "Delete a webhook"
+    },
+    {
+      "category": "webhooks",
+      "name": "list_campaign_webhooks",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/webhooks",
+      "description": "List campaign webhooks"
+    },
+    {
+      "category": "webhooks",
+      "name": "save_campaign_webhooks",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/webhooks",
+      "description": "Save campaign webhooks"
+    },
+    {
+      "category": "webhooks",
+      "name": "delete_campaign_webhook",
+      "method": "DELETE",
+      "path": "/campaigns/{campaign_id}/webhooks/{webhook_id}",
+      "description": "Delete campaign webhook"
+    },
+    {
+      "category": "webhooks",
+      "name": "campaign_webhook_summary",
+      "method": "GET",
+      "path": "/campaigns/{campaign_id}/webhooks/summary",
+      "description": "Campaign webhook summary"
+    },
+    {
+      "category": "webhooks",
+      "name": "retrigger_failed_webhooks",
+      "method": "POST",
+      "path": "/campaigns/{campaign_id}/webhooks/retrigger-failed-events",
+      "description": "Retrigger failed webhook events"
+    },
+    {
+      "category": "clients",
+      "name": "list_clients",
+      "method": "GET",
+      "path": "/client/",
+      "description": "List clients"
+    },
+    {
+      "category": "clients",
+      "name": "create_client",
+      "method": "POST",
+      "path": "/client/save",
+      "description": "Create/update client"
+    },
+    {
+      "category": "clients",
+      "name": "list_client_api_keys",
+      "method": "GET",
+      "path": "/client/api-key",
+      "description": "List client API keys"
+    },
+    {
+      "category": "clients",
+      "name": "create_client_api_key",
+      "method": "POST",
+      "path": "/client/api-key",
+      "description": "Create client API key"
+    },
+    {
+      "category": "clients",
+      "name": "reset_client_api_key",
+      "method": "PUT",
+      "path": "/client/api-key/reset/{id}",
+      "description": "Reset client API key"
+    },
+    {
+      "category": "clients",
+      "name": "delete_client_api_key",
+      "method": "DELETE",
+      "path": "/client/api-key/{id}",
+      "description": "Delete client API key"
+    },
+    {
+      "category": "lead_lists",
+      "name": "list_lead_lists",
+      "method": "GET",
+      "path": "/lead-list/",
+      "description": "List lead lists"
+    },
+    {
+      "category": "lead_lists",
+      "name": "get_lead_list",
+      "method": "GET",
+      "path": "/lead-list/{id}",
+      "description": "Get lead list by ID"
+    },
+    {
+      "category": "lead_lists",
+      "name": "create_lead_list",
+      "method": "POST",
+      "path": "/lead-list/",
+      "description": "Create a lead list"
+    },
+    {
+      "category": "lead_lists",
+      "name": "update_lead_list",
+      "method": "PUT",
+      "path": "/lead-list/{id}",
+      "description": "Update a lead list"
+    },
+    {
+      "category": "lead_lists",
+      "name": "delete_lead_list",
+      "method": "DELETE",
+      "path": "/lead-list/{id}",
+      "description": "Delete a lead list"
+    },
+    {
+      "category": "lead_lists",
+      "name": "import_to_lead_list",
+      "method": "POST",
+      "path": "/lead-list/{id}/import",
+      "description": "Import leads into a list"
+    },
+    {
+      "category": "lead_lists",
+      "name": "assign_lead_list_tags",
+      "method": "POST",
+      "path": "/lead-list/assign-tags",
+      "description": "Assign tags to a lead list"
+    },
+    {
+      "category": "crm",
+      "name": "list_lead_tags",
+      "method": "GET",
+      "path": "/crm/leads/tags",
+      "description": "List lead tags"
+    },
+    {
+      "category": "crm",
+      "name": "create_lead_tag",
+      "method": "POST",
+      "path": "/crm/leads/tags",
+      "description": "Create/assign lead tag"
+    },
+    {
+      "category": "crm",
+      "name": "remove_lead_tag",
+      "method": "DELETE",
+      "path": "/crm/leads/tags/{tagMappingId}",
+      "description": "Remove lead tag mapping"
+    },
+    {
+      "category": "crm",
+      "name": "create_tag",
+      "method": "POST",
+      "path": "/tags",
+      "description": "Create a tag"
+    },
+    {
+      "category": "crm",
+      "name": "get_lead_notes",
+      "method": "GET",
+      "path": "/crm/leads/notes/{id}",
+      "description": "Get lead notes"
+    },
+    {
+      "category": "crm",
+      "name": "get_lead_tasks",
+      "method": "GET",
+      "path": "/crm/leads/tasks/{id}",
+      "description": "Get lead tasks"
+    },
+    {
+      "category": "inbox",
+      "name": "get_inbox_message",
+      "method": "GET",
+      "path": "/master-inbox/{id}",
+      "description": "Get inbox message by ID"
+    },
+    {
+      "category": "inbox",
+      "name": "inbox_replies",
+      "method": "POST",
+      "path": "/master-inbox/inbox-replies",
+      "description": "List inbox replies"
+    },
+    {
+      "category": "inbox",
+      "name": "unread_replies",
+      "method": "POST",
+      "path": "/master-inbox/unread-replies",
+      "description": "List unread replies"
+    },
+    {
+      "category": "inbox",
+      "name": "important_replies",
+      "method": "POST",
+      "path": "/master-inbox/important",
+      "description": "List important replies"
+    },
+    {
+      "category": "inbox",
+      "name": "snoozed_replies",
+      "method": "POST",
+      "path": "/master-inbox/snoozed",
+      "description": "List snoozed replies"
+    },
+    {
+      "category": "inbox",
+      "name": "archived_replies",
+      "method": "POST",
+      "path": "/master-inbox/archived",
+      "description": "List archived replies"
+    },
+    {
+      "category": "inbox",
+      "name": "assigned_to_me",
+      "method": "POST",
+      "path": "/master-inbox/assigned-me",
+      "description": "List replies assigned to me"
+    },
+    {
+      "category": "inbox",
+      "name": "reminders",
+      "method": "POST",
+      "path": "/master-inbox/reminders",
+      "description": "List reminders"
+    },
+    {
+      "category": "inbox",
+      "name": "scheduled",
+      "method": "POST",
+      "path": "/master-inbox/scheduled",
+      "description": "List scheduled messages"
+    },
+    {
+      "category": "inbox",
+      "name": "sent",
+      "method": "POST",
+      "path": "/master-inbox/sent",
+      "description": "List sent messages"
+    },
+    {
+      "category": "inbox",
+      "name": "untracked_replies",
+      "method": "GET",
+      "path": "/master-inbox/untracked-replies",
+      "description": "List untracked replies"
+    },
+    {
+      "category": "inbox",
+      "name": "inbox_views",
+      "method": "POST",
+      "path": "/master-inbox/views",
+      "description": "List/custom inbox views"
+    },
+    {
+      "category": "inbox",
+      "name": "reply_status",
+      "method": "GET",
+      "path": "/master-inbox/reply-status",
+      "description": "Get reply status"
+    },
+    {
+      "category": "inbox",
+      "name": "change_read_status",
+      "method": "PATCH",
+      "path": "/master-inbox/change-read-status",
+      "description": "Mark messages read/unread"
+    },
+    {
+      "category": "inbox",
+      "name": "update_category",
+      "method": "PATCH",
+      "path": "/master-inbox/update-category",
+      "description": "Update inbox lead category"
+    },
+    {
+      "category": "inbox",
+      "name": "update_revenue",
+      "method": "PATCH",
+      "path": "/master-inbox/update-revenue",
+      "description": "Update inbox revenue"
+    },
+    {
+      "category": "inbox",
+      "name": "resume_inbox_lead",
+      "method": "PATCH",
+      "path": "/master-inbox/resume-lead",
+      "description": "Resume lead from inbox"
+    },
+    {
+      "category": "inbox",
+      "name": "set_reminder",
+      "method": "POST",
+      "path": "/master-inbox/set-reminder",
+      "description": "Set a reminder"
+    },
+    {
+      "category": "inbox",
+      "name": "create_note",
+      "method": "POST",
+      "path": "/master-inbox/create-note",
+      "description": "Create inbox note"
+    },
+    {
+      "category": "inbox",
+      "name": "create_task",
+      "method": "POST",
+      "path": "/master-inbox/create-task",
+      "description": "Create inbox task"
+    },
+    {
+      "category": "inbox",
+      "name": "block_domains",
+      "method": "POST",
+      "path": "/master-inbox/block-domains",
+      "description": "Block domains from inbox"
+    },
+    {
+      "category": "inbox",
+      "name": "push_to_subsequence",
+      "method": "POST",
+      "path": "/master-inbox/push-to-subsequence",
+      "description": "Push lead to subsequence"
+    },
+    {
+      "category": "inbox",
+      "name": "update_inbox_team_member",
+      "method": "POST",
+      "path": "/master-inbox/update-team-member",
+      "description": "Update inbox team member"
+    },
+    {
+      "category": "utilities",
+      "name": "send_single_email",
+      "method": "POST",
+      "path": "/send-email/initiate",
+      "description": "Send a one-off email"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "search_contacts",
+      "method": "POST",
+      "path": "/search-email-leads/search-contacts",
+      "description": "Search prospect contacts"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "get_contacts",
+      "method": "POST",
+      "path": "/search-email-leads/get-contacts",
+      "description": "Get prospect contacts"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "fetch_contacts",
+      "method": "POST",
+      "path": "/search-email-leads/fetch-contacts",
+      "description": "Fetch prospect contacts"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "find_emails",
+      "method": "POST",
+      "path": "/search-email-leads/search-contacts/find-emails",
+      "description": "Find emails for prospects"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "review_contacts",
+      "method": "POST",
+      "path": "/search-email-leads/review-contacts/{filter_id}",
+      "description": "Review fetched contacts"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_countries",
+      "method": "GET",
+      "path": "/search-email-leads/countries",
+      "description": "List countries filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_states",
+      "method": "GET",
+      "path": "/search-email-leads/states",
+      "description": "List states filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_cities",
+      "method": "GET",
+      "path": "/search-email-leads/cities",
+      "description": "List cities filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_industries",
+      "method": "GET",
+      "path": "/search-email-leads/industries",
+      "description": "List industries filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_sub_industries",
+      "method": "GET",
+      "path": "/search-email-leads/sub-industries",
+      "description": "List sub-industries filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_departments",
+      "method": "GET",
+      "path": "/search-email-leads/departments",
+      "description": "List departments filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_levels",
+      "method": "GET",
+      "path": "/search-email-leads/levels",
+      "description": "List seniority levels filter"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_job_titles",
+      "method": "GET",
+      "path": "/search-email-leads/job-title",
+      "description": "Job title filter helpers"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_keywords",
+      "method": "GET",
+      "path": "/search-email-leads/keywords",
+      "description": "Keywords filter helpers"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_company",
+      "method": "GET",
+      "path": "/search-email-leads/company",
+      "description": "Company filter helpers"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_domain",
+      "method": "GET",
+      "path": "/search-email-leads/domain",
+      "description": "Domain filter helpers"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_head_counts",
+      "method": "GET",
+      "path": "/search-email-leads/head-counts",
+      "description": "Headcount filter helpers"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_revenue",
+      "method": "GET",
+      "path": "/search-email-leads/revenue",
+      "description": "Revenue filter helpers"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_search_analytics",
+      "method": "GET",
+      "path": "/search-email-leads/search-analytics",
+      "description": "Prospect search analytics"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "prospect_reply_analytics",
+      "method": "GET",
+      "path": "/search-email-leads/reply-analytics",
+      "description": "Prospect reply analytics"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "recent_searches",
+      "method": "GET",
+      "path": "/search-email-leads/search-filters/recent-searches",
+      "description": "Recent prospect searches"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "saved_searches",
+      "method": "GET",
+      "path": "/search-email-leads/search-filters/saved-searches",
+      "description": "Saved prospect searches"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "save_search",
+      "method": "POST",
+      "path": "/search-email-leads/search-filters/save-search",
+      "description": "Save a prospect search"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "update_saved_search",
+      "method": "POST",
+      "path": "/search-email-leads/search-filters/save-search/{id}",
+      "description": "Update a saved prospect search"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "fetched_searches",
+      "method": "GET",
+      "path": "/search-email-leads/search-filters/fetched-searches",
+      "description": "Fetched prospect searches"
+    },
+    {
+      "category": "smart_prospect",
+      "name": "update_fetched_search",
+      "method": "POST",
+      "path": "/search-email-leads/search-filters/fetched-searches/{id}",
+      "description": "Update a fetched prospect search"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "list_spam_tests",
+      "method": "GET",
+      "path": "/spam-test/report",
+      "description": "List spam/placement tests"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "create_manual_test",
+      "method": "POST",
+      "path": "/spam-test/manual",
+      "description": "Create a manual spam test"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "create_automated_test",
+      "method": "POST",
+      "path": "/spam-test/schedule",
+      "description": "Create/schedule an automated spam test"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "get_spam_test",
+      "method": "GET",
+      "path": "/spam-test/{spam_test_id}",
+      "description": "Get spam test details"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "stop_automated_test",
+      "method": "POST",
+      "path": "/spam-test/{spam_test_id}/stop",
+      "description": "Stop an automated spam test"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "delete_tests",
+      "method": "POST",
+      "path": "/spam-test/delete",
+      "description": "Delete spam tests in bulk"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "list_folders",
+      "method": "GET",
+      "path": "/spam-test/folder",
+      "description": "List spam-test folders"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "create_folder",
+      "method": "POST",
+      "path": "/spam-test/folder",
+      "description": "Create spam-test folder"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "get_folder",
+      "method": "GET",
+      "path": "/spam-test/folder/{folder_id}",
+      "description": "Get spam-test folder"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "delete_folder",
+      "method": "DELETE",
+      "path": "/spam-test/folder/{folder_id}",
+      "description": "Delete spam-test folder"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "provider_ids",
+      "method": "GET",
+      "path": "/spam-test/seed/providers",
+      "description": "List seed provider IDs"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "mailbox_count",
+      "method": "GET",
+      "path": "/spam-test/report/mailboxes-count",
+      "description": "Mailbox count for tests"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "mailbox_summary",
+      "method": "GET",
+      "path": "/spam-test/report/mailboxes-summary",
+      "description": "Mailbox summary for tests"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_blacklists",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/blacklist",
+      "description": "IP/domain blacklist report"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_domain_blacklist",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/domain-blacklist",
+      "description": "Domain blacklist details"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_dkim",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/dkim-details",
+      "description": "DKIM details"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_spf",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/spf-details",
+      "description": "SPF details"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_rdns",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/rdns-details",
+      "description": "rDNS details"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_ip_details",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/ip-analytics",
+      "description": "IP analytics"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_provider_report",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/providerwise",
+      "description": "Provider-wise report"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_geo_report",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/groupwise",
+      "description": "Geo/group-wise report"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_sender_list",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/sender-accounts",
+      "description": "Sender accounts list"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_sender_report",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/sender-account-wise",
+      "description": "Sender-account-wise report"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_spam_filter",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/spam-filter-details",
+      "description": "Spam filter report"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_email_content",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/email-content",
+      "description": "Test email content"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_schedule_history",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/schedule-history",
+      "description": "Schedule history"
+    },
+    {
+      "category": "smart_delivery",
+      "name": "spam_test_reply_headers",
+      "method": "GET",
+      "path": "/spam-test/report/{spam_test_id}/sender-account-wise/{reply_id}/email-headers",
+      "description": "Reply email headers"
+    },
+    {
+      "category": "smart_senders",
+      "name": "get_vendors",
+      "method": "GET",
+      "path": "/smart-senders/get-vendors",
+      "description": "List smart-sender vendors"
+    },
+    {
+      "category": "smart_senders",
+      "name": "search_domain",
+      "method": "POST",
+      "path": "/smart-senders/search-domain",
+      "description": "Search domains for purchase"
+    },
+    {
+      "category": "smart_senders",
+      "name": "domain_list",
+      "method": "GET",
+      "path": "/smart-senders/get-domain-list",
+      "description": "List purchased domains"
+    },
+    {
+      "category": "smart_senders",
+      "name": "auto_generate_mailboxes",
+      "method": "POST",
+      "path": "/smart-senders/auto-generate-mailboxes",
+      "description": "Auto-generate mailboxes"
+    },
+    {
+      "category": "smart_senders",
+      "name": "place_order",
+      "method": "POST",
+      "path": "/smart-senders/place-order",
+      "description": "Place a smart-senders order"
+    },
+    {
+      "category": "smart_senders",
+      "name": "order_details",
+      "method": "GET",
+      "path": "/smart-senders/order-details",
+      "description": "Get order details"
+    },
+    {
+      "category": "smart_senders",
+      "name": "get_otp",
+      "method": "GET",
+      "path": "/smart-senders/auth-secret",
+      "description": "Get OTP/auth secret"
+    }
+  ]
+}
