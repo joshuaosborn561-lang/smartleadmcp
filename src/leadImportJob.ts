@@ -122,6 +122,57 @@ function toSmartleadLead(row: StagingLead): Record<string, unknown> {
   return lead;
 }
 
+/** Prefer non-empty values when the same email appears twice in staging. */
+function coalesceText(
+  a: string | null | undefined,
+  b: string | null | undefined
+): string | null {
+  const left = a?.trim();
+  if (left) return left;
+  const right = b?.trim();
+  return right || null;
+}
+
+/**
+ * Collapse duplicate emails within a fetched chunk so a sparse duplicate row
+ * cannot overwrite vendor/job_title/Local_Sports_Team from a richer row.
+ * Returns merged leads for upload plus every staging id to mark imported.
+ */
+export function mergeStagingLeadsByEmail(rows: StagingLead[]): {
+  leads: StagingLead[];
+  allIds: string[];
+} {
+  const byEmail = new Map<string, StagingLead>();
+  const allIds: string[] = [];
+
+  for (const row of rows) {
+    allIds.push(row.id);
+    const key = row.email.trim().toLowerCase();
+    const existing = byEmail.get(key);
+    if (!existing) {
+      byEmail.set(key, { ...row });
+      continue;
+    }
+    byEmail.set(key, {
+      ...existing,
+      first_name: coalesceText(existing.first_name, row.first_name),
+      last_name: coalesceText(existing.last_name, row.last_name),
+      company_name: coalesceText(existing.company_name, row.company_name),
+      location: coalesceText(existing.location, row.location),
+      local_sports_team: coalesceText(
+        existing.local_sports_team,
+        row.local_sports_team
+      ),
+      vendor: coalesceText(existing.vendor, row.vendor),
+      brand: coalesceText(existing.brand, row.brand),
+      job_title: coalesceText(existing.job_title, row.job_title),
+      campaign_name: coalesceText(existing.campaign_name, row.campaign_name),
+    });
+  }
+
+  return { leads: [...byEmail.values()], allIds };
+}
+
 async function appendLog(runId: string, message: string): Promise<void> {
   const { error } = await db.insert("lead_import_logs", {
     run_id: runId,
@@ -277,11 +328,15 @@ export async function processLeadImportRun(
     if (rows.length === 0) break;
 
     chunkIndex += 1;
-    const leadList = rows.map(toSmartleadLead);
+    const { leads: mergedRows, allIds } = mergeStagingLeadsByEmail(rows);
+    const leadList = mergedRows.map(toSmartleadLead);
 
     await appendLog(
       runId,
-      `Chunk ${chunkIndex}: uploading ${rows.length} leads to Smartlead`
+      `Chunk ${chunkIndex}: uploading ${leadList.length} leads to Smartlead` +
+        (mergedRows.length !== rows.length
+          ? ` (merged from ${rows.length} staging rows)`
+          : "")
     );
 
     try {
@@ -291,16 +346,13 @@ export async function processLeadImportRun(
         body: { lead_list: leadList },
       });
 
-      const counts = parseSmartleadImportCounts(response, rows.length);
+      const counts = parseSmartleadImportCounts(response, leadList.length);
       importedTotal += counts.imported;
       duplicateTotal += counts.duplicate;
       invalidTotal += counts.invalid;
 
       // Mark whole chunk processed so retries never re-send these rows.
-      await markImported(
-        rows.map((r) => r.id),
-        runId
-      );
+      await markImported(allIds, runId);
 
       await updateRun(runId, {
         imported_count: importedTotal,
