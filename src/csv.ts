@@ -5,6 +5,9 @@ export type CsvLeadRow = {
   company_name?: string;
   location?: string;
   local_sports_team?: string;
+  /** Smartlead merge field {{vendor}}; brand is a back-compat CSV alias. */
+  vendor?: string;
+  job_title?: string;
 };
 
 const HEADER_ALIASES: Record<keyof Omit<CsvLeadRow, "email"> | "email", string[]> = {
@@ -26,6 +29,15 @@ const HEADER_ALIASES: Record<keyof Omit<CsvLeadRow, "email"> | "email", string[]
     "sports_team",
     "sports team",
     "team",
+  ],
+  // Prefer an explicit vendor column; brand is accepted as a back-compat alias.
+  vendor: ["vendor", "brand"],
+  job_title: [
+    "job_title",
+    "job title",
+    "jobtitle",
+    "title",
+    "position",
   ],
 };
 
@@ -141,6 +153,8 @@ export function csvToLeadRows(csvText: string): {
       company_name: pick("company_name"),
       location: pick("location"),
       local_sports_team: pick("local_sports_team"),
+      vendor: pick("vendor"),
+      job_title: pick("job_title"),
     });
   }
 

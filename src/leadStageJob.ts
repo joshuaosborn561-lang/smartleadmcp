@@ -110,6 +110,8 @@ function toStagingRow(
     company_name: row.company_name ?? null,
     location: row.location ?? null,
     local_sports_team: row.local_sports_team ?? null,
+    vendor: row.vendor ?? null,
+    job_title: row.job_title ?? null,
     imported: false,
   };
 }

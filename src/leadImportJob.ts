@@ -28,6 +28,9 @@ type StagingLead = {
   company_name: string | null;
   location: string | null;
   local_sports_team: string | null;
+  vendor: string | null;
+  brand: string | null;
+  job_title: string | null;
 };
 
 type ChunkCounts = {
@@ -99,9 +102,22 @@ function toSmartleadLead(row: StagingLead): Record<string, unknown> {
   if (row.company_name) lead.company_name = row.company_name;
   if (row.location) lead.location = row.location;
 
+  const customFields: Record<string, string> = {};
   const team = row.local_sports_team?.trim();
   if (team) {
-    lead.custom_fields = { Local_Sports_Team: team };
+    customFields.Local_Sports_Team = team;
+  }
+  // Prefer vendor; fall back to brand for rows staged before the vendor column.
+  const vendor = (row.vendor ?? row.brand)?.trim();
+  if (vendor) {
+    customFields.vendor = vendor;
+  }
+  const jobTitle = row.job_title?.trim();
+  if (jobTitle) {
+    customFields.job_title = jobTitle;
+  }
+  if (Object.keys(customFields).length > 0) {
+    lead.custom_fields = customFields;
   }
   return lead;
 }
@@ -133,7 +149,7 @@ async function fetchNextChunk(
   const { data, error } = await db.select<StagingLead[]>(
     "leads_staging",
     [
-      "select=id,campaign_id,campaign_name,email,first_name,last_name,company_name,location,local_sports_team",
+      "select=id,campaign_id,campaign_name,email,first_name,last_name,company_name,location,local_sports_team,vendor,brand,job_title",
       `campaign_id=eq.${campaignId}`,
       "imported=eq.false",
       "order=created_at.asc",
