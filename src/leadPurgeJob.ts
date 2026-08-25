@@ -2,7 +2,8 @@ import { resolveApiKey, sleep } from "./client.js";
 import { db } from "./supabase.js";
 
 const BASE_URL = "https://server.smartlead.ai/api/v1";
-const PAGE_LIMIT = 500;
+/** Smartlead GET /campaigns/{id}/leads rejects limit > 100. */
+const PAGE_LIMIT = 100;
 const CONCURRENCY = 5;
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 1000;
@@ -29,6 +30,10 @@ type StagingPurgeRow = {
 };
 
 type DeleteOutcome = "deleted" | "not_found" | "failed";
+
+function normalizeEmail(value: string | null | undefined): string {
+  return (value ?? "").trim().toLowerCase();
+}
 
 async function updateRun(
   runId: string,
@@ -88,13 +93,16 @@ async function markPurged(ids: string[], runId: string): Promise<void> {
 }
 
 /**
- * Build email (lowercased) → Smartlead lead.id map for the whole campaign.
+ * Build email (lowercased+trimmed) → Smartlead lead.id map for the whole campaign.
+ * Pages GET /campaigns/{id}/leads at limit=100 (API max); stops when a page returns
+ * fewer than 100 rows, with total_leads from the first page as a runaway guard.
  */
 async function buildCampaignEmailLeadIdMap(
   campaignId: number
 ): Promise<Map<string, number>> {
   const map = new Map<string, number>();
   let offset = 0;
+  let totalLeads: number | null = null;
 
   while (true) {
     const apiKey = resolveApiKey();
@@ -151,6 +159,13 @@ async function buildCampaignEmailLeadIdMap(
         ? payload
         : [];
 
+    if (totalLeads == null && root.total_leads != null) {
+      const parsed = Number(root.total_leads);
+      if (Number.isFinite(parsed) && parsed >= 0) {
+        totalLeads = parsed;
+      }
+    }
+
     for (const item of items) {
       if (!item || typeof item !== "object") continue;
       const row = item as Record<string, unknown>;
@@ -159,7 +174,7 @@ async function buildCampaignEmailLeadIdMap(
           ? (row.lead as Record<string, unknown>)
           : row;
       const email =
-        typeof lead.email === "string" ? lead.email.trim().toLowerCase() : "";
+        typeof lead.email === "string" ? normalizeEmail(lead.email) : "";
       const idRaw = lead.id;
       const id =
         typeof idRaw === "number"
@@ -172,8 +187,11 @@ async function buildCampaignEmailLeadIdMap(
       }
     }
 
+    offset += items.length;
+
+    // Stop when short page, or when we've covered total_leads (runaway guard).
     if (items.length < PAGE_LIMIT) break;
-    offset += PAGE_LIMIT;
+    if (totalLeads != null && offset >= totalLeads) break;
   }
 
   return map;
@@ -319,10 +337,10 @@ export async function processLeadPurgeRun(
     `Lead purge ${runId}: built campaign lead map size=${emailMap.size}; purge set size=${purgeRows.length}`
   );
 
-  // Dedupe purge set by email (keep first staging id for marking).
+  // Dedupe purge set by normalized email (keep first staging id for marking).
   const byEmail = new Map<string, StagingPurgeRow>();
   for (const row of purgeRows) {
-    const key = row.email.trim().toLowerCase();
+    const key = normalizeEmail(row.email);
     if (!key) continue;
     if (!byEmail.has(key)) byEmail.set(key, row);
   }
@@ -394,7 +412,7 @@ export async function processLeadPurgeRun(
   const stillOpen = await fetchPurgeSet(campaignId);
   const extraIds = stillOpen
     .filter((row) => {
-      const key = row.email.trim().toLowerCase();
+      const key = normalizeEmail(row.email);
       return deletedEmails.has(key) || !emailMap.has(key);
     })
     .map((row) => row.id);

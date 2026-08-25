@@ -1181,7 +1181,7 @@ export function registerTools(server: McpServer): void {
     "start_lead_purge",
     {
       description:
-        "Start a background purge of Smartlead campaign leads whose leads_staging rows have purge=true and purged=false. Builds an email→lead_id map via paginated GET /campaigns/{id}/leads, then DELETE /campaigns/{id}/leads/{lead_id} with concurrency 5 and retries on 429/5xx. Returns {run_id, total_leads, campaign_name} immediately — summary only, never lead/email arrays. Re-runs skip already-purged rows. Poll get_lead_purge_status.",
+        "Start a background purge of Smartlead campaign leads whose leads_staging rows have purge=true and purged=false. Builds an email→lead_id map via paginated GET /campaigns/{id}/leads (limit 100, API max), then DELETE /campaigns/{id}/leads/{lead_id} with concurrency 5 and retries on 429/5xx. Returns {run_id, total_leads, campaign_name} immediately — summary only, never lead/email arrays. Re-runs skip already-purged rows. Poll get_lead_purge_status.",
       inputSchema: {
         campaign_id: z
           .number()
