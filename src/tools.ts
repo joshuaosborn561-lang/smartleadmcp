@@ -14,6 +14,11 @@ import {
   startLeadImport,
 } from "./leadImportJob.js";
 import {
+  getLeadPurgeStatus,
+  listLeadPurgeRuns,
+  startLeadPurge,
+} from "./leadPurgeJob.js";
+import {
   getLeadStageStatus,
   listLeadStageRuns,
   startLeadStaging,
@@ -1169,6 +1174,45 @@ export function registerTools(server: McpServer): void {
       },
     },
     async ({ limit }) => runTool(() => listLeadImportRuns(limit ?? 20))
+  );
+
+  // ── Staged lead purge (background DELETE by email flag) ────────────────
+  server.registerTool(
+    "start_lead_purge",
+    {
+      description:
+        "Start a background purge of Smartlead campaign leads whose leads_staging rows have purge=true and purged=false. Builds an email→lead_id map via paginated GET /campaigns/{id}/leads, then DELETE /campaigns/{id}/leads/{lead_id} with concurrency 5 and retries on 429/5xx. Returns {run_id, total_leads, campaign_name} immediately — summary only, never lead/email arrays. Re-runs skip already-purged rows. Poll get_lead_purge_status.",
+      inputSchema: {
+        campaign_id: z
+          .number()
+          .int()
+          .describe("Smartlead campaign ID matching leads_staging.campaign_id"),
+      },
+    },
+    async ({ campaign_id }) => runTool(() => startLeadPurge(campaign_id))
+  );
+
+  server.registerTool(
+    "get_lead_purge_status",
+    {
+      description:
+        "Get summary status for a lead purge run: status, total_leads, deleted_count, not_found_count, failed_count.",
+      inputSchema: {
+        run_id: z.string().uuid().describe("Purge run ID from start_lead_purge"),
+      },
+    },
+    async ({ run_id }) => runTool(() => getLeadPurgeStatus(run_id))
+  );
+
+  server.registerTool(
+    "list_lead_purge_runs",
+    {
+      description: "List recent lead purge runs (compact summaries only).",
+      inputSchema: {
+        limit: z.number().int().min(1).max(100).optional(),
+      },
+    },
+    async ({ limit }) => runTool(() => listLeadPurgeRuns(limit ?? 20))
   );
 
   // ── CSV staging into leads_staging (server-side, chunked) ──────────────

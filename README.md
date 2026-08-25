@@ -55,6 +55,7 @@ Also available at `GET /catalog` on the deployed service.
 - `create_webhook`, `list_clients`, `list_lead_lists`, `list_inbox_replies`
 - `stage_leads_from_url`, `get_lead_stage_status`, `list_lead_stage_runs` (CSV URL/`csv_payloads` → `leads_staging`, chunked ~400; `auto_import=true` queues Smartlead import)
 - `start_lead_import`, `get_lead_import_status`, `list_lead_import_runs` (Supabase `leads_staging` → Smartlead background import)
+- `start_lead_purge`, `get_lead_purge_status`, `list_lead_purge_runs` (background DELETE for `leads_staging.purge=true` rows; concurrency 5, resumable via `purged`)
 - `list_smartlead_endpoints`, `smartlead_request`
 
 ## Environment
